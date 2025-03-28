@@ -275,11 +275,12 @@ ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 }
 
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 function instal_udp(){
-mkdir -p /usr/local/kyt/
-wget -q -O /usr/local/kyt/udp-mini "${REPO}badvpn/udp-mini"
-chmod +x /usr/local/kyt/udp-mini
+mkdir -p /usr/local/badvpn/
+wget -q -O /usr/local/badvpn/udp-mini "${REPO}badvpn/udp-mini"
+chmod +x /usr/local/badvpn/udp-mini
 wget -q -O /etc/systemd/system/udp-mini-1.service "${REPO}badvpn/udp-mini-1.service"
 wget -q -O /etc/systemd/system/udp-mini-2.service "${REPO}badvpn/udp-mini-2.service"
 wget -q -O /etc/systemd/system/udp-mini-3.service "${REPO}badvpn/udp-mini-3.service"
@@ -295,30 +296,20 @@ systemctl disable udp-mini-3
 systemctl stop udp-mini-3
 systemctl enable udp-mini-3
 systemctl start udp-mini-3
-print_success "Limit Quota Service"
 }
 
-#function ssh_slow(){
-#clear
-# // Installing UDP Mini
-#print_install "Memasang modul SlowDNS Server"
-#    wget -q -O /tmp/nameserver "${REPO}slowdns/nameserver" >/dev/null 2>&1
-#    chmod +x /tmp/nameserver
-#    bash /tmp/nameserver | tee /root/install.log
- #print_success "SlowDNS"
-#}
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 clear
 function ins_SSHD(){
-clear
-print_install "Memasang SSHD"
 wget -q -O /etc/ssh/sshd_config "${REPO}ws/sshd" >/dev/null 2>&1
 chmod 700 /etc/ssh/sshd_config
 /etc/init.d/ssh restart
 systemctl restart ssh
 /etc/init.d/ssh status
-print_success "SSHD"
 }
+
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 clear
 function ins_dropbear(){
