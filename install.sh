@@ -594,30 +594,32 @@ function enable_services(){
 #══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 function instal(){
-    first_setup
-    nginx_install
-    base_package
-    make_folder_xray
-    pasang_domain
-    password_default
-    pasang_ssl
-    install_xray
-    ssh
-    udp_mini
-    ssh_slow
-    ins_SSHD
-    ins_dropbear
-    ins_vnstat
-    ins_openvpn
-    ins_backup
-    ins_swab
-    ins_Fail2ban
-    ins_epro
-    ins_restart
-    menu
-    profile
-    enable_services
+input_domain
+instal_system
+is_root
+buat_direktori
+setup_env
+base_package
+pasang_domain
+pasang_ssl
+make_folder_xray
+install_xray
+ssh
+instal_udp
+ins_SSHD
+ins_dropbear
+ins_vnstat
+ins_openvpn
+ins_swab
+ins_Fail2ban
+ins_epro
+ins_restart
+menu
+profile
+service_menu
+enable_services
 }
+
 instal
 #══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 rm -rf /root/menu
