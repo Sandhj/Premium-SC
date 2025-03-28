@@ -498,28 +498,38 @@ menu
 EOF
 }
 
-function service_menu(){
-cat >/etc/cron.d/xp_all <<-END
-		SHELL=/bin/sh
-		PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-		2 0 * * * root /usr/local/sbin/xp
-	END
-    chmod 644 /root/.profile
-	
-    cat >/etc/cron.d/daily_reboot <<-END
-		SHELL=/bin/sh
-		PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-		0 5 * * * root /sbin/reboot
-	END
+function instal() {
+    # Menambahkan cron job untuk xp_all
+    cat >/etc/cron.d/xp_all <<EOF
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+2 0 * * * root /usr/local/sbin/xp
+EOF
+    chmod 644 /etc/cron.d/xp_all || { echo "Gagal mengatur izin untuk xp_all cron job"; exit 1; }
 
+    # Menambahkan cron job untuk daily reboot
+    cat >/etc/cron.d/daily_reboot <<EOF
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+0 5 * * * root /sbin/reboot
+EOF
+    chmod 644 /etc/cron.d/daily_reboot || { echo "Gagal mengatur izin untuk daily_reboot cron job"; exit 1; }
+
+    # Menambahkan cron job untuk membersihkan log nginx dan xray
     echo "*/1 * * * * root echo -n > /var/log/nginx/access.log" >/etc/cron.d/log.nginx
     echo "*/1 * * * * root echo -n > /var/log/xray/access.log" >>/etc/cron.d/log.xray
-    service cron restart
-    cat >/home/daily_reboot <<-END
-		5
-	END
 
-cat >/etc/systemd/system/rc-local.service <<EOF
+    # Memastikan layanan cron dijalankan ulang
+    service cron restart || { echo "Gagal menjalankan ulang layanan cron"; exit 1; }
+
+    # Menyimpan waktu reboot harian ke file /home/daily_reboot
+    cat >/home/daily_reboot <<EOF
+5
+EOF
+    chmod 644 /home/daily_reboot || { echo "Gagal mengatur izin untuk /home/daily_reboot"; exit 1; }
+
+    # Membuat unit systemd untuk rc-local.service
+    cat >/etc/systemd/system/rc-local.service <<EOF
 [Unit]
 Description=/etc/rc.local
 ConditionPathExists=/etc/rc.local
@@ -534,9 +544,16 @@ SysVStartPriority=99
 WantedBy=multi-user.target
 EOF
 
-echo "/bin/false" >>/etc/shells
-echo "/usr/sbin/nologin" >>/etc/shells
-cat >/etc/rc.local <<EOF
+    # Mengaktifkan dan menjalankan rc-local.service
+    systemctl enable rc-local || { echo "Gagal mengaktifkan rc-local.service"; exit 1; }
+    systemctl start rc-local || { echo "Gagal memulai rc-local.service"; exit 1; }
+
+    # Menambahkan shell non-login ke /etc/shells
+    echo "/bin/false" >>/etc/shells
+    echo "/usr/sbin/nologin" >>/etc/shells
+
+    # Menambahkan script rc.local
+    cat >/etc/rc.local <<EOF
 #!/bin/sh -e
 # rc.local
 # By default this script does nothing.
@@ -546,23 +563,23 @@ systemctl restart netfilter-persistent
 exit 0
 EOF
 
-    chmod +x /etc/rc.local
-    
+    # Memberikan izin eksekusi untuk rc.local
+    chmod +x /etc/rc.local || { echo "Gagal memberikan izin eksekusi untuk /etc/rc.local"; exit 1; }
+
+    # Mengecek waktu reboot otomatis
     AUTOREB=$(cat /home/daily_reboot)
     SETT=11
-    if [ $AUTOREB -gt $SETT ]; then
+    if [ "$AUTOREB" -gt "$SETT" ]; then
         TIME_DATE="PM"
     else
         TIME_DATE="AM"
     fi
+    echo "Waktu reboot otomatis: $AUTOREB:00 $TIME_DATE"
 }
 
 #══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
-# Restart layanan after install
 function enable_services(){
-clear
-print_install "Enable Service"
     systemctl daemon-reload
     systemctl start netfilter-persistent
     systemctl enable --now rc-local
@@ -572,13 +589,11 @@ print_install "Enable Service"
     systemctl restart xray
     systemctl restart cron
     systemctl restart haproxy
-    print_success "Enable Service"
-    clear
 }
 
-# Fingsi Install Script
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function instal(){
-clear
     first_setup
     nginx_install
     base_package
@@ -604,58 +619,12 @@ clear
     enable_services
 }
 instal
-echo ""
-history -c
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 rm -rf /root/menu
 rm -rf /root/*.zip
 rm -rf /root/*.sh
 rm -rf /root/LICENSE
 rm -rf /root/README.md
 rm -rf /root/domain
-#sudo hostnamectl set-hostname $user
-secs_to_human "$(($(date +%s) - ${start}))"
-echo ""
-echo " "
-echo "=====================-[ INFORMASI ]-===================="
-echo ""
-echo "------------------------------------------------------------"
-echo ""
-echo ""
-echo "   >>> Service & Port"  | tee -a log-install.txt
-echo "   - SlowDNS SSH              : ALL Port SSH"  | tee -a log-install.txt
-echo "   - OpenSSH                  : 22"  | tee -a log-install.txt
-echo "   - SSH Websocket            : 80 [ON]" | tee -a log-install.txt
-echo "   - SSH SSL Websocket        : 443" | tee -a log-install.txt
-echo "   - OpenVPN Websocket SSL    : 1194" | tee -a log-install.txt
-echo "   - OpenVPN SSL              : 1194" | tee -a log-install.txt
-echo "   - OpenVPN TCP              : 1194" | tee -a log-install.txt
-echo "   - OpenVPN UDP              : 2200" | tee -a log-install.txt
-echo "   - Stunnel4                 : 222, 777" | tee -a log-install.txt
-echo "   - Dropbear                 : 109, 143" | tee -a log-install.txt
-echo "   - Badvpn                   : 7100-7900" | tee -a log-install.txt
-echo "   - Nginx                    : 81" | tee -a log-install.txt
-echo "   - Vmess WS TLS             : 443" | tee -a log-install.txt
-echo "   - Vless WS TLS             : 443" | tee -a log-install.txt
-echo "   - Trojan WS TLS            : 443" | tee -a log-install.txt
-echo "   - Shadowsocks WS TLS       : 443" | tee -a log-install.txt
-echo "   - Vmess WS none TLS        : 80" | tee -a log-install.txt
-echo "   - Vless WS none TLS        : 80" | tee -a log-install.txt
-echo "   - Trojan WS none TLS       : 80" | tee -a log-install.txt
-echo "   - Shadowsocks WS none TLS  : 80" | tee -a log-install.txt
-echo "   - Vmess gRPC               : 443" | tee -a log-install.txt
-echo "   - Vless gRPC               : 443" | tee -a log-install.txt
-echo "   - Trojan gRPC              : 443" | tee -a log-install.txt
-echo "   - Shadowsocks gRPC         : 443" | tee -a log-install.txt
-echo ""
-echo ""
-echo "------------------------------------------------------------"
-echo ""
-echo -e ""
-echo ""
-echo "" | tee -a log-install.txt
-echo -e ""
-sudo hostnamectl set-hostname $username
-echo -e "${green} Script Successfull Installed"
-echo ""
-read -p "$( echo -e "Press ${YELLOW}[ ${NC}${YELLOW}Enter${NC} ${YELLOW}]${NC} For Reboot") "
-reboot
+
+echo -e "Successfully Install This Script"
