@@ -498,7 +498,7 @@ menu
 EOF
 }
 
-function instal() {
+function service_menu() {
     # Menambahkan cron job untuk xp_all
     cat >/etc/cron.d/xp_all <<EOF
 SHELL=/bin/sh
