@@ -313,22 +313,16 @@ systemctl restart ssh
 
 clear
 function ins_dropbear(){
-clear
-print_install "Menginstall Dropbear"
-# // Installing Dropbear
 apt-get install dropbear -y > /dev/null 2>&1
 wget -q -O /etc/default/dropbear "${REPO}ssh/dropbear.conf"
 chmod +x /etc/default/dropbear
 /etc/init.d/dropbear restart
 /etc/init.d/dropbear status
-print_success "Dropbear"
 }
 
-clear
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function ins_vnstat(){
-clear
-print_install "Menginstall Vnstat"
-# setting vnstat
 apt -y install vnstat > /dev/null 2>&1
 /etc/init.d/vnstat restart
 apt -y install libsqlite3-dev > /dev/null 2>&1
@@ -345,58 +339,18 @@ systemctl enable vnstat
 /etc/init.d/vnstat status
 rm -f /root/vnstat-2.6.tar.gz
 rm -rf /root/vnstat-2.6
-print_success "Vnstat"
 }
+
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 function ins_openvpn(){
-clear
-print_install "Menginstall OpenVPN"
-#OpenVPN
 wget ${REPO}ssh/openvpn &&  chmod +x openvpn && ./openvpn
 /etc/init.d/openvpn restart
-print_success "OpenVPN"
 }
 
-function ins_backup(){
-clear
-print_install "Memasang Backup Server"
-#BackupOption
-apt install rclone -y
-printf "q\n" | rclone config
-wget -O /root/.config/rclone/rclone.conf "${REPO}backup/rclone.conf"
-#Install Wondershaper
-cd /bin
-git clone  https://github.com/magnific0/wondershaper.git
-cd wondershaper
-sudo make install
-cd
-rm -rf wondershaper
-echo > /home/limit
-apt install msmtp-mta ca-certificates bsd-mailx -y
-cat<<EOF>>/etc/msmtprc
-defaults
-tls on
-tls_starttls on
-tls_trust_file /etc/ssl/certs/ca-certificates.crt
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
-account default
-host smtp.gmail.com
-port 587
-auth on
-user oceantestdigital@gmail.com
-from oceantestdigital@gmail.com
-password jokerman77 
-logfile ~/.msmtp.log
-EOF
-chown -R www-data:www-data /etc/msmtprc
-wget -q -O /etc/ipserver "${REPO}ssh/ipserver" && bash /etc/ipserver
-print_success "Backup Server"
-}
-
-clear
 function ins_swab(){
-clear
-print_install "Memasang Swap 1 G"
 gotop_latest="$(curl -s https://api.github.com/repos/xxxserxxx/gotop/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
     gotop_link="https://github.com/xxxserxxx/gotop/releases/download/v$gotop_latest/gotop_v"$gotop_latest"_linux_amd64.deb"
     curl -sL "$gotop_link" -o /tmp/gotop.deb
@@ -416,12 +370,11 @@ gotop_latest="$(curl -s https://api.github.com/repos/xxxserxxx/gotop/releases | 
     chronyc tracking -v
     
     wget ${REPO}bbr.sh &&  chmod +x bbr.sh && ./bbr.sh
-print_success "Swap 1 G"
 }
 
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function ins_Fail2ban(){
-clear
-print_install "Menginstall Fail2ban"
 apt -y install fail2ban > /dev/null 2>&1
 #sudo systemctl enable --now fail2ban
 /etc/init.d/fail2ban restart
@@ -442,12 +395,11 @@ sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/kyt.txt"@g' /etc/default/drop
 
 # Ganti Banner
 wget -O /etc/kyt.txt "${REPO}ssh/issue.net"
-print_success "Fail2ban"
 }
 
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function ins_epro(){
-clear
-print_install "Menginstall ePro WebSocket Proxy"
     wget -O /usr/bin/ws "${REPO}ws/ws" >/dev/null 2>&1
     wget -O /usr/bin/tun.conf "${REPO}ws/tun.conf" >/dev/null 2>&1
     wget -O /etc/systemd/system/ws.service "${REPO}ws/ws.service" >/dev/null 2>&1
@@ -483,12 +435,11 @@ netfilter-persistent reload
 cd
 apt autoclean -y >/dev/null 2>&1
 apt autoremove -y >/dev/null 2>&1
-print_success "ePro WebSocket Proxy"
 }
 
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
+
 function ins_restart(){
-clear
-print_install "Restarting  All Packet"
 /etc/init.d/nginx restart
 /etc/init.d/openvpn restart
 /etc/init.d/ssh restart
@@ -516,13 +467,12 @@ cd
 rm -f /root/openvpn
 rm -f /root/key.pem
 rm -f /root/cert.pem
-print_success "All Packet"
 }
+
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 #Instal Menu
 function menu(){
-    clear
-    print_install "Memasang Menu Packet"
     wget ${REPO}menu/menu.zip
     unzip menu.zip
     chmod +x menu/*
@@ -530,6 +480,8 @@ function menu(){
     rm -rf menu
     rm -rf menu.zip
 }
+
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 # Membaut Default Menu 
 function profile(){
@@ -544,7 +496,9 @@ fi
 mesg n || true
 menu
 EOF
+}
 
+function service_menu(){
 cat >/etc/cron.d/xp_all <<-END
 		SHELL=/bin/sh
 		PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -601,8 +555,9 @@ EOF
     else
         TIME_DATE="AM"
     fi
-print_success "Menu Packet"
 }
+
+#══════════════════════════════⊹⊱≼≽⊰⊹══════════════════════════════
 
 # Restart layanan after install
 function enable_services(){
