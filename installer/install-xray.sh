@@ -1,53 +1,16 @@
 #!/bin/bash
-dateFromServer=$(curl -v --insecure --silent https://google.com/ 2>&1 | grep Date | sed -e 's/< Date: //')
-biji=`date +"%Y-%m-%d" -d "$dateFromServer"`
-#########################
 
-clear
-red='\e[1;31m'
-green='\e[0;32m'
-yell='\e[1;33m'
-NC='\e[0m'
-echo "XRAY Core Vmess / Vless"
-echo "Trojan"
-echo "Progress..."
-sleep 3
-#green() { echo -e "\\033[32;1m${*}\\033[0m"; }
-#red() { echo -e "\\033[31;1m${*}\\033[0m"; }
-#PERMISSION
-#if [ "$res" = "Permission Accepted..." ]; then
-#green "Permission Accepted.."
-#else
-#red "Permission Denied!"
-#exit 0
-#fi
-#echo -e "
-#"
-date
-echo ""
+# AMBIL INFORMASI DOMAIN
 domain=$(cat /root/domain)
-sleep 1
-mkdir -p /etc/xray 
-echo -e "[ ${green}INFO${NC} ] Checking... "
+
+
 apt install iptables iptables-persistent -y
-sleep 1
-echo -e "[ ${green}INFO$NC ] Setting ntpdate"
 ntpdate pool.ntp.org 
 timedatectl set-ntp true
-sleep 1
-echo -e "[ ${green}INFO$NC ] Enable chronyd"
 systemctl enable chronyd
 systemctl restart chronyd
-sleep 1
-echo -e "[ ${green}INFO$NC ] Enable chrony"
-systemctl enable chrony
-systemctl restart chrony
-timedatectl set-timezone Asia/Kuala_Lumpur
-sleep 1
-echo -e "[ ${green}INFO$NC ] Setting chrony tracking"
 chronyc sourcestats -v
 chronyc tracking -v
-echo -e "[ ${green}INFO$NC ] Setting dll"
 apt clean all && apt update
 apt install curl socat xz-utils wget apt-transport-https gnupg gnupg2 gnupg1 dnsutils lsb-release -y 
 apt install socat cron bash-completion ntpdate -y
