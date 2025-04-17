@@ -1,49 +1,52 @@
 #!/bin/bash
 
+# BUAT DIREKTORI 
+mkdir -p /var/log/xray
+mkdir -p /etc/xray
+
 # AMBIL INFORMASI DOMAIN
 domain=$(cat /root/domain)
 
+# Nonaktifkan interaksi pengguna untuk instalasi iptables-persistent
+DEBIAN_FRONTEND=noninteractive apt install iptables iptables-persistent -y
 
-apt install iptables iptables-persistent -y
-ntpdate pool.ntp.org 
-timedatectl set-ntp true
+timedatectl set-ntp false
+
+# INSTALL CRONYD
+if ! dpkg -l | grep -q chrony; then
+    apt install chrony -y
+fi
 systemctl enable chronyd
 systemctl restart chronyd
 chronyc sourcestats -v
 chronyc tracking -v
-apt clean all && apt update
-apt install curl socat xz-utils wget apt-transport-https gnupg gnupg2 gnupg1 dnsutils lsb-release -y 
-apt install socat cron bash-completion ntpdate -y
-ntpdate pool.ntp.org
-apt -y install chrony
-apt install zip -y
-apt install curl pwgen openssl netcat cron -y
+
+# Bersihkan cache APT dan perbarui paket
+apt autoclean && apt update
+
+# Instalasi paket tambahan
+apt install curl socat xz-utils wget apt-transport-https gnupg dnsutils lsb-release bash-completion ntpdate zip pwgen openssl netcat cron -y
 
 
 # install xray
-sleep 1
-echo -e "[ ${green}INFO$NC ] Downloading & Installing xray core"
 domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
 chown www-data.www-data $domainSock_dir
-# Make Folder XRay
-mkdir -p /var/log/xray
-mkdir -p /etc/xray
+
+# PERSIAPAN XRAY
 chown www-data.www-data /var/log/xray
 chmod +x /var/log/xray
 touch /var/log/xray/access.log
 touch /var/log/xray/error.log
 touch /var/log/xray/access2.log
 touch /var/log/xray/error2.log
-# / / Ambil Xray Core Version Terbaru
 
-# Ambil Xray Core Version Terbaru
 latest_version="$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
+
 # Installation Xray Core
-# $latest_version
 xraycore_link="https://github.com/XTLS/Xray-core/releases/download/v1.7.5/xray-linux-64.zip"
 bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u www-data --version $latest_version
 
-## crt xray
+# crt xray
 systemctl stop nginx
 mkdir /root/.acme.sh
 curl https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh
@@ -61,7 +64,6 @@ echo -n '#!/bin/bash
 ' > /usr/local/bin/ssl_renew.sh
 chmod +x /usr/local/bin/ssl_renew.sh
 if ! grep -q 'ssl_renew.sh' /var/spool/cron/crontabs/root;then (crontab -l;echo "15 03 */3 * * /usr/local/bin/ssl_renew.sh") | crontab;fi
-
 mkdir -p /home/vps/public_html
 
 # set uuid
@@ -477,20 +479,3 @@ systemctl restart xray
 systemctl restart nginx
 systemctl enable runn
 systemctl restart runn
-
-sleep 1
-wget -q -O /usr/bin/auto-set "https://raw.githubusercontent.com/Paper890/mysc/main/xray/auto-set.sh" && chmod +x /usr/bin/auto-set 
-wget -q -O /usr/bin/crtxray "https://raw.githubusercontent.com/Paper890/mysc/main/xray/crt.sh" && chmod +x /usr/bin/crtxray 
-sleep 1
-yellow() { echo -e "\\033[33;1m${*}\\033[0m"; }
-yellow "xray/Vmess"
-yellow "xray/Vless"
-
-
-
-mv /root/domain /etc/xray/ 
-if [ -f /root/scdomain ];then
-rm /root/scdomain > /dev/null 2>&1
-fi
-clear
-rm -f ins-xray.sh  
