@@ -17,10 +17,10 @@ sysctl -w net.ipv6.conf.all.disable_ipv6=1 >/dev/null 2>&1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1 >/dev/null 2>&1
 
 # INSTALL XRAY
-wget https://raw.githubusercontent.com/Paper890/mysc/main/xray/ins-xray.sh && chmod +x ins-xray.sh && ./ins-xray.sh
+wget https://raw.githubusercontent.com/Sandhj/Premium-SC/main/installer/install-xray.sh && chmod +x install-xray.sh && ./install-xray.sh
 
 # INSTALL MENU
-wget https://raw.githubusercontent.com/Paper890/mysc/main/update/update.sh && chmod +x update.sh && ./update.sh
+wget https://raw.githubusercontent.com/Paper890/mysc/main/installer/install-menu.sh && chmod +x install-menu.sh && ./install-menu.sh
 
 # PASANG DEFAULT MENU
 cat> /root/.profile << END
