@@ -42,9 +42,27 @@ sudo apt install netcat-openbsd
 apt install cron -y
 
 
-# install xray
-domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
-chown www-data.www-data $domainSock_dir
+# install Chown
+domainSock_dir="/run/xray"
+
+# Periksa apakah direktori sudah ada, jika tidak, buat direktori
+if [ ! -d "$domainSock_dir" ]; then
+    mkdir -p "$domainSock_dir"
+    echo "Direktori '$domainSock_dir' berhasil dibuat."
+else
+    echo "Direktori '$domainSock_dir' sudah ada."
+fi
+
+# Ubah kepemilikan direktori ke pengguna dan grup 'www-data'
+chown www-data:www-data "$domainSock_dir"
+
+# Verifikasi kepemilikan
+if [ "$(stat -c '%U:%G' "$domainSock_dir")" == "www-data:www-data" ]; then
+    echo "Kepemilikan direktori '$domainSock_dir' berhasil diatur ke 'www-data:www-data'."
+else
+    echo "Gagal mengatur kepemilikan direktori '$domainSock_dir'."
+    exit 1
+fi
 
 # PERSIAPAN XRAY
 chown www-data.www-data /var/log/xray
