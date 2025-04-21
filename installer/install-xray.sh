@@ -38,7 +38,7 @@ apt install ntpdate -y
 apt install zip -y
 apt install pwgen -y
 apt install openssl -y
-apt install netcat -y
+sudo apt install netcat-openbsd
 apt install cron -y
 
 
