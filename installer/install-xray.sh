@@ -25,7 +25,21 @@ chronyc tracking -v
 apt autoclean && apt update
 
 # Instalasi paket tambahan
-apt install curl socat xz-utils wget apt-transport-https gnupg dnsutils lsb-release bash-completion ntpdate zip pwgen openssl netcat cron -y
+apt install curl -y
+apt install socat -y
+apt install xz-utils -y
+apt install wget -y
+apt install apt-transport-https -y
+apt install gnupg -y
+apt install dnsutils -y
+apt install lsb-release -y
+apt install bash-completion -y
+apt install ntpdate -y
+apt install zip -y
+apt install pwgen -y
+apt install openssl -y
+apt install netcat -y
+apt install cron -y
 
 
 # install xray
